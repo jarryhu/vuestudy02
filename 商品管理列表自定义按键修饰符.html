@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商品管理列表</title>
+    <script type="text/javascript" src="js/vue-2.4.0.js"></script>
+</head>
+<body>
+
+<div id="app">
+
+    <tr>
+        <td><label>id</label><input type="text" v-model="id"></td>
+        <!--        <td><label>名称</label><input type="text" v-model="productName" @keyup.enter="add"></td>-->
+        <td><label>名称</label><input type="text" v-model="productName" @keyup.f2="add"></td>
+        <td><input type="button" value="添加" @click="add"></td>
+        <td><label>搜索条件</label><input type="text" v-model="keyword"></td>
+    </tr>
+
+    <table border="1" cellspacing="0">
+        <thead>
+        <tr>
+            <td>id</td>
+            <td>商品名称</td>
+            <td>商品生产日期</td>
+            <td>操作</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="product in search(keyword)" :key="product.id">
+            <td>{{product.id}}</td>
+            <td>{{product.productName}}</td>
+            <td>{{product.productDate|dateFromat2}}</td>
+            <td><a href="" @click.prevent="del(product.id)">删除</a></td>
+        </tr>
+        </tbody>
+    </table>
+    <P>{{new Date()|dateFromat}}</P>
+</div>
+<script>
+
+    // 定义一个全局的过滤器
+    Vue.filter("dateFromat", function (date) {
+            var dateStr = new Date(date);
+            var y = dateStr.getFullYear();
+            var m = (dateStr.getMonth() + 1).toString().padStart(2, "0");//padStart  es6新方法  第一个参数是保持位数，第二个参数是表示用什么填充
+            var d = dateStr.getDay().toString().padStart(2, "0");
+            ;
+            var h = dateStr.getHours().toString().padStart(2, "0");
+            ;
+            var mm = dateStr.getMinutes().toString().padStart(2, "0");
+            ;
+            var s = dateStr.getSeconds().toString().padStart(2, "0");
+            ;
+            // return y + "-" + m + "-" + d + " " + h + ":" + mm + ":" + s;
+            return `${y}-${m}-${d} ${h}:${mm}:${s}~~~~~~~`;//${y} + "-" + m + "-" + d + " " + h + ":" + mm + ":" + s;
+        }
+    )
+    Vue.config.keyCodes = 112 //自定义按键修饰符 根据键值
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            keyword: "",
+            productName: "",
+            id: "",
+            productList: [{id: 1, productName: "奔驰", productDate: new Date},
+                {id: 2, productName: "宝马", productDate: new Date},
+                {id: 3, productName: "沃尔沃", productDate: new Date},
+                {id: 4, productName: "普拉多", productDate: new Date}],
+            msg: ""
+        },
+        methods: {
+            add() {
+                if (isNaN(this.id)) {
+                    alert("id 必须为数字");
+                    return;
+                }
+
+                product = {id: this.id, productName: this.productName, productDate: new Date()}
+                // vue 是双向绑定机制所以修改后直接同步到页面
+                this.productList.push(product);
+            },
+            del(id) {
+                console.log("del")
+                // 根据ID找到索引然后根据索引删除
+                var index = this.productList.findIndex(item => {
+                    if (item.id == id) {
+                        return true//终止循环
+                    }
+                })
+                this.productList.splice(index, 1);//根据返回的索引删除1个
+            },
+            search(keyword) {
+                var newList = [];
+                this.productList.forEach(item => {
+                    if (item.productName.indexOf(keyword) != -1) {
+                        newList.push(item);
+                    }
+                })
+                return newList;
+            }
+        },
+        filters://定义私有过滤器 优先级如果私有共有过滤器同名优先使用私有过滤器
+            {
+                dateFromat2: function (date) {
+                    var dateStr = new Date(date);
+                    var y = dateStr.getFullYear();
+                    var m = dateStr.getMonth() + 1;
+                    var d = dateStr.getDay();
+                    var h = dateStr.getHours();
+                    var mm = dateStr.getMinutes();
+                    var s = dateStr.getSeconds();
+                    // return y + "-" + m + "-" + d + " " + h + ":" + mm + ":" + s;
+                    return `${y}-${m}-${d} ${h}:${mm}:${s}`;
+
+                }
+            }
+
+    })
+</script>
+</body>
+</html>

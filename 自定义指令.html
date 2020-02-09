@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自定义指令.html</title>
+    <script type="text/javascript" src="js/vue-2.4.0.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <input type="text" v-color1="'blue'">
+    <!--    调用自定义指令的时候必须以v-开头-->
+    <input type="text" v-focus v-color>
+    <p v-ABC="100" v-fontsize="80">{{msg}}</p>
+</div>
+
+<script>
+    //自定义全局的指令
+    //自定义指令是的时候不需要v-开头
+    //第一个参数是指令的名称，
+    //参数1必须是el，就是指餐座的dom元素 参数2是一个对象，是一个钩子函数
+    Vue.directive("focus", {
+        //钩子函数
+        // bind:function(el)
+        // {
+        //   el.style.color="red";
+        // },
+        // bind: function (el) {//只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
+        //     el.focus();
+        // },
+        inserted: function (el) {//被绑定元素插入父节点时调用 和js行为有关的操作放在insered中防止加载不上
+            el.focus();
+            // el.style.color = "red";
+        },
+        // updated: function (el) {//所在组件的 VNode 更新时调用，
+        //     el.focus();
+        //
+        // }
+    })
+    Vue.directive("color", {
+        //对于样式只要绑定样式就会绑定到元素上虽然没有加载到dom中
+        bind: function (el) {
+            el.style.color = "green";
+        },
+    })
+    Vue.directive("color1", {
+        bind: function (el, binding) {
+            console.log(binding.name);
+            console.log(binding.value);
+            console.log(binding.expression);//转成字符串的值
+            el.style.color = binding.value;//计算后的值
+
+        }
+    })
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            msg: "测试自定义指令"
+        },
+        methods: {},
+        //私有的自定义指令
+        directives: { //指令的名称:{处理函数}
+            abc: {//注意定义指令必须全小写 使用时随意
+                bind: function (el, binding) {
+                    el.style.fontweight = binding.value
+
+                }
+            },
+            fontsize: function (el, binding) { //在很多时候，你可能想在 bind 和 update 时触发相同行为，而不关心其它的钩子
+                el.style.fontSize = binding.value + "px"
+            }
+        }
+
+
+    })
+</script>
+</body>
+</html>

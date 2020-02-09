@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商品管理列表请求方式.html</title>
+    <script type="text/javascript" src="js/vue-2.4.0.js"></script>
+    <script src="./js/vue-resource-1.3.4.js"></script>
+</head>
+<body>
+
+<div id="app">
+
+    <tr>
+        <td><label>id</label><input type="text" v-model="id"></td>
+        <td><label>名称</label><input type="text" v-model="productName"></td>
+        <td><input type="button" value="添加" @click="add"></td>
+        <td><label>搜索条件</label><input type="text" v-model="keyword"></td>
+    </tr>
+
+    <table border="1" cellspacing="0">
+        <thead>
+        <tr>
+            <td>id</td>
+            <td>商品名称</td>
+            <td>商品价格</td>
+            <td>商品数量</td>
+            <td>操作</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="product in search(keyword)" :key="product.id">
+            <td>{{product.id}}</td>
+            <td>{{product.productName}}</td>
+            <td>{{product.product_price}}</td>
+            <td>{{product.total}}</td>
+            <td><a href="" @click.prevent="del(product.id)">删除</a></td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+<script>
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            keyword: "",
+            productName: "",
+            id: "",
+            productList: [],
+            msg: ""
+        },
+        created() {
+            this.getProducts();//当vm实例data 和methods 初始化完毕后vm会自动调用该方法
+        },
+        methods: {
+
+            getProducts() {
+                this.$http.get("http://localhost:8000/getProductList").then(function (d) {
+                    console.log(d);
+                    if (d.body.code === 0) {
+                        this.productList = d.body.data;
+                    } else {
+                        alert("没有数据");
+                    }
+                })
+            },
+            add() {
+                this.$http.post("http://localhost:8000/insertProduct",
+                    {productName: this.productName, product_price: null, total: null},
+                    {emulateJSON: true}).then(function (d) {
+                        if (d.data = 1) {
+                            this.getProducts();
+                        }
+                    }, function (d) {
+                        alert("插入失败");
+
+                    }
+                )
+
+            },
+            del(id) {
+                console.log("del")
+                // 根据ID找到索引然后根据索引删除
+                this.$http.post("http://localhost:8000/deleteProductByid", {id: id}, {emulateJSON: true})
+                    .then(function (d) {
+                        if (d.data === 1) {
+                            this.getProducts();
+                        }
+                        else
+                        {
+                            alert("删除失败");
+                        }
+
+                    })
+            },
+            search(keyword) {
+                var newList = [];
+                this.productList.forEach(item => {
+                    if (item.productName.indexOf(keyword) != -1) {
+                        newList.push(item);
+                    }
+                })
+                return newList;
+            }
+        }
+    })
+</script>
+</body>
+</html>

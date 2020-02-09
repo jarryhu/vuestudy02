@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>过滤器的使用1.html</title>
+    <script type="text/javascript" src="js/vue-2.4.0.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <!--标准插值表达式-->{{msg}}<br>
+    <!--过滤器的写法 {{变量名|过滤器名}} msgfilter 表示过滤器的名字-->  {{msg| msgfilter}}
+    <br>
+<!--    带参数的过滤器在后面追加个数即可-->
+    {{msg| msgfilter| msgfilter2("家")}}
+</div>
+<script>
+
+    Vue.filter("msgfilter", function (msg) {
+        return msg.replace(/我/g, "你")//正则表达式的写法
+        //   return "你和你的祖国";
+
+    })
+
+
+    Vue.filter("msgfilter2", function (msg, arg1) {
+
+        var result = msg + arg1;
+        return result;
+
+    })
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            msg: "我和我的祖国"
+        }
+    })
+
+
+</script>
+</body>
+</html>
